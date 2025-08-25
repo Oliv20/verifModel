@@ -1,0 +1,29 @@
+
+[STUDIO\TOOLS\CONFIGURATIONS\Code Generator]
+
+"C:\\Users\\utilisateur\\Desktop\\oliverfundu\\oliverfundu.etp"="KCG" 
+
+[STUDIO\TOOLS\CONFIGURATIONS\Metrics and Rules Checker]
+
+"C:\\Users\\utilisateur\\Desktop\\oliverfundu\\oliverfundu.etp"="MetricRule" 
+
+[STUDIO\TOOLS\CONFIGURATIONS\Reporter]
+
+"C:\\Users\\utilisateur\\Desktop\\oliverfundu\\oliverfundu.etp"="HTML" 
+
+[STUDIO\Workspace]
+
+"ActiveProject"="C:\\Users\\utilisateur\\Desktop\\oliverfundu\\oliverfundu.etp" 
+
+[SCADE\Editor\Shortcut]
+
+"groupNb"="0" 
+
+[SCADE\Editor\Tool]
+
+"UsePolyline"="false" 
+"TransitionKind"="strong" 
+
+[SCADE\Generator\Tool]
+
+"PragmaTarget"="" 

@@ -1,0 +1,30 @@
+Notes-Types { Esterel-Technologies }  DEFINITIONS ::=
+BEGIN
+    Remark ::= SEQUENCE OF { SEQUENCE {
+    annot_object OID,
+    name STRING,
+        information {
+            Description TEXT
+            {
+            	 NT_FIELD_HEIGHT 20 ,
+            	 NT_FIELD_WIDTH 60 },
+            to_c BOOLEAN
+            {
+            	 NT_DEFAULT_VALUE T ,
+            	 NT_PRINTABLE F ,
+            	 NT_LEFT_LABEL "Propagate to generated code" }
+    } } }
+
+END
+
+Notes-Values { Esterel-Technologies }  DEFINITIONS ::=
+BEGIN
+    Remark ::= {
+        {"!ed/4af8/605E/1518/68ac1670422", "Remark_1","doorStatus := Closed;" , T },
+        {"!ed/4b02/605E/1518/68ac16953117", "Remark_1","doorStatus := Opening;" , T },
+        {"!ed/4b09/605E/1518/68ac16a111", "Remark_1","doorStatus := Open;" , T },
+        {"!ed/4b10/605E/1518/68ac16a87cee", "Remark_1","doorStatus := Closing;
+
+doorStatus := Closed;" , T }}
+END
+

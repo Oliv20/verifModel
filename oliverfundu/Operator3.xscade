@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<File xmlns="http://www.esterel-technologies.com/ns/scade/6" xmlns:ed="http://www.esterel-technologies.com/ns/scade/pragmas/editor/7" xmlns:kcg="http://www.esterel-technologies.com/ns/scade/pragmas/codegen/3">
+	<declarations>
+		<Operator kind="node" name="Door">
+			<inputs>
+				<Variable name="openDoor">
+					<type>
+						<NamedType>
+							<type>
+								<TypeRef name="bool"/>
+							</type>
+						</NamedType>
+					</type>
+					<pragmas>
+						<ed:Variable oid="!ed/4a89/605E/1518/68ac12f832f4"/>
+					</pragmas>
+				</Variable>
+				<Variable name="closeDoor">
+					<type>
+						<NamedType>
+							<type>
+								<TypeRef name="bool"/>
+							</type>
+						</NamedType>
+					</type>
+					<pragmas>
+						<ed:Variable oid="!ed/4a92/605E/1518/68ac130a2d5d"/>
+					</pragmas>
+				</Variable>
+			</inputs>
+			<outputs>
+				<Variable name="doorStatus">
+					<type>
+						<NamedType>
+							<type>
+								<TypeRef name="DoorStatus"/>
+							</type>
+						</NamedType>
+					</type>
+					<pragmas>
+						<ed:Variable oid="!ed/4a9b/605E/1518/68ac13237db6"/>
+					</pragmas>
+				</Variable>
+			</outputs>
+			<data>
+				<StateMachine name="SM2">
+					<states>
+						<State initial="true" name="Closed">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Opening"/>
+									</target>
+									<condition>
+										<IdExpression>
+											<path>
+												<ConstVarRef name="openDoor"/>
+											</path>
+										</IdExpression>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4b2c/605E/1518/68ac177b1338"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4af8/605E/1518/68ac1670422"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;doorStatus := Closed;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+						<State name="Opening">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Open"/>
+									</target>
+									<condition>
+										<ConstValue value="true"/>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4b49/605E/1518/68ac18d7d67"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4b02/605E/1518/68ac16953117"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;doorStatus := Opening;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+						<State name="Open">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Closing"/>
+									</target>
+									<condition>
+										<IdExpression>
+											<path>
+												<ConstVarRef name="closeDoor"/>
+											</path>
+										</IdExpression>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4b63/605E/1518/68ac19034f5d"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4b09/605E/1518/68ac16a111"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;doorStatus := Open;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+						<State name="Closing">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Closed"/>
+									</target>
+									<condition>
+										<ConstValue value="true"/>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4b71/605E/1518/68ac1918110f"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4b10/605E/1518/68ac16a87cee"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;doorStatus := Closing;  doorStatus := Closed;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+					</states>
+					<pragmas>
+						<ed:StateMachine oid="!ed/4aac/605E/1518/68ac157535ce"/>
+					</pragmas>
+				</StateMachine>
+			</data>
+			<pragmas>
+				<ed:Operator oid="!ed/4a84/605E/1518/68ac0fc44bff" xmlns="http://www.esterel-technologies.com/ns/scade/pragmas/editor/7">
+					<diagrams>
+						<NetDiagram name="Door_1" landscape="true" format="A4 (210 297)" oid="!ed/4a85/605E/1518/68ac0fc44fc1">
+							<presentationElements>
+								<StateMachineGE presentable="!ed/4aac/605E/1518/68ac157535ce">
+									<position>
+										<Point x="1429" y="1711"/>
+									</position>
+									<size>
+										<Size width="25506" height="11395"/>
+									</size>
+								</StateMachineGE>
+								<StateGE presentable="!ed/4af8/605E/1518/68ac1670422">
+									<position>
+										<Point x="1517" y="7938"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<StateGE presentable="!ed/4b02/605E/1518/68ac16953117">
+									<position>
+										<Point x="8467" y="9155"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<StateGE presentable="!ed/4b09/605E/1518/68ac16a111">
+									<position>
+										<Point x="15593" y="6332"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<StateGE presentable="!ed/4b10/605E/1518/68ac16a87cee">
+									<position>
+										<Point x="8043" y="2522"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<TransitionGE presentable="!ed/4b2c/605E/1518/68ac177b1338">
+									<positions>
+										<Point x="4657" y="9119"/>
+										<Point x="5450" y="9790"/>
+										<Point x="7655" y="9666"/>
+										<Point x="8467" y="10354"/>
+									</positions>
+									<labelSize>
+										<Size width="2240" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="6791" y="7938"/>
+									</labelPos>
+									<slashPos>
+										<Point x="8449" y="7938"/>
+									</slashPos>
+								</TransitionGE>
+								<TransitionGE presentable="!ed/4b49/605E/1518/68ac18d7d67">
+									<positions>
+										<Point x="11606" y="10336"/>
+										<Point x="12259" y="9349"/>
+										<Point x="14940" y="8414"/>
+										<Point x="15593" y="7408"/>
+									</positions>
+									<labelSize>
+										<Size width="1129" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="10478" y="7108"/>
+									</labelPos>
+									<slashPos>
+										<Point x="11024" y="7108"/>
+									</slashPos>
+								</TransitionGE>
+								<TransitionGE presentable="!ed/4b63/605E/1518/68ac19034f5d">
+									<positions>
+										<Point x="17163" y="6332"/>
+										<Point x="15169" y="5450"/>
+										<Point x="13176" y="4568"/>
+										<Point x="11183" y="3687"/>
+									</positions>
+									<labelSize>
+										<Size width="2435" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="12294" y="6332"/>
+									</labelPos>
+									<slashPos>
+										<Point x="14146" y="6332"/>
+									</slashPos>
+								</TransitionGE>
+								<TransitionGE presentable="!ed/4b71/605E/1518/68ac1918110f">
+									<positions>
+										<Point x="8043" y="3651"/>
+										<Point x="6862" y="4815"/>
+										<Point x="4269" y="6773"/>
+										<Point x="3087" y="7938"/>
+									</positions>
+									<labelSize>
+										<Size width="1129" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="5697" y="7144"/>
+									</labelPos>
+									<slashPos>
+										<Point x="6244" y="7144"/>
+									</slashPos>
+								</TransitionGE>
+							</presentationElements>
+						</NetDiagram>
+					</diagrams>
+				</ed:Operator>
+			</pragmas>
+		</Operator>
+	</declarations>
+</File>

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<File xmlns="http://www.esterel-technologies.com/ns/scade/6" xmlns:ed="http://www.esterel-technologies.com/ns/scade/pragmas/editor/7" xmlns:kcg="http://www.esterel-technologies.com/ns/scade/pragmas/codegen/3">
+	<declarations>
+		<Operator kind="node" name="Bridge">
+			<inputs>
+				<Variable name="deployBridge">
+					<type>
+						<NamedType>
+							<type>
+								<TypeRef name="bool"/>
+							</type>
+						</NamedType>
+					</type>
+					<pragmas>
+						<ed:Variable oid="!ed/4ba4/605E/1518/68ac1ebd7e73"/>
+					</pragmas>
+				</Variable>
+				<Variable name="retractBridge">
+					<type>
+						<NamedType>
+							<type>
+								<TypeRef name="bool"/>
+							</type>
+						</NamedType>
+					</type>
+					<pragmas>
+						<ed:Variable oid="!ed/4bae/605E/1518/68ac1ee75458"/>
+					</pragmas>
+				</Variable>
+			</inputs>
+			<outputs>
+				<Variable name="bridgeStatus">
+					<type>
+						<NamedType>
+							<type>
+								<TypeRef name="BridgeStatus"/>
+							</type>
+						</NamedType>
+					</type>
+					<pragmas>
+						<ed:Variable oid="!ed/4bb8/605E/1518/68ac1f2f53fd"/>
+					</pragmas>
+				</Variable>
+			</outputs>
+			<data>
+				<StateMachine name="SM1">
+					<states>
+						<State initial="true" name="Retracted">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Deploying"/>
+									</target>
+									<condition>
+										<IdExpression>
+											<path>
+												<ConstVarRef name="deployBridge"/>
+											</path>
+										</IdExpression>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4c13/605E/1518/68ac210a3e8e"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4bcf/605E/1518/68ac1fd2477d"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;bridgeStatus := Retracted;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+						<State name="Deploying">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Deployed"/>
+									</target>
+									<condition>
+										<ConstValue value="true"/>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4c2c/605E/1518/68ac21dc114a"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4bdc/605E/1518/68ac205a59a5"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;bridgeStatus := Deploying;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+						<State name="Deployed">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Retracting"/>
+									</target>
+									<condition>
+										<IdExpression>
+											<path>
+												<ConstVarRef name="retractBridge"/>
+											</path>
+										</IdExpression>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4c3d/605E/1518/68ac220727ba"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4be4/605E/1518/68ac206749ee"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;bridgeStatus := Deployed;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+						<State name="Retracting">
+							<unless>
+								<Transition kind="restart">
+									<target>
+										<StateRef name="Retracted"/>
+									</target>
+									<condition>
+										<ConstValue value="true"/>
+									</condition>
+									<pragmas>
+										<ed:Transition oid="!ed/4c49/605E/1518/68ac22363e89"/>
+									</pragmas>
+								</Transition>
+							</unless>
+							<pragmas>
+								<ed:State oid="!ed/4bec/605E/1518/68ac207110fe"/>
+								<kcg:Pragma>
+									doc &quot;Remark_1&quot; {Description = &quot;bridgeStatus := Retracting;&quot;}
+								</kcg:Pragma>
+							</pragmas>
+						</State>
+					</states>
+					<pragmas>
+						<ed:StateMachine oid="!ed/4bc7/605E/1518/68ac1f6e6e72"/>
+					</pragmas>
+				</StateMachine>
+			</data>
+			<pragmas>
+				<ed:Operator oid="!ed/4ba2/605E/1518/68ac1e764b20" xmlns="http://www.esterel-technologies.com/ns/scade/pragmas/editor/7">
+					<diagrams>
+						<NetDiagram name="Bridge_1" landscape="true" format="A4 (210 297)" oid="!ed/4ba3/605E/1518/68ac1e7670a9">
+							<presentationElements>
+								<StateMachineGE presentable="!ed/4bc7/605E/1518/68ac1f6e6e72">
+									<position>
+										<Point x="1252" y="2311"/>
+									</position>
+									<size>
+										<Size width="25965" height="12118"/>
+									</size>
+								</StateMachineGE>
+								<StateGE presentable="!ed/4bcf/605E/1518/68ac1fd2477d">
+									<position>
+										<Point x="1588" y="7655"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<StateGE presentable="!ed/4bdc/605E/1518/68ac205a59a5">
+									<position>
+										<Point x="11624" y="11007"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<StateGE presentable="!ed/4be4/605E/1518/68ac206749ee">
+									<position>
+										<Point x="19491" y="9472"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<StateGE presentable="!ed/4bec/605E/1518/68ac207110fe">
+									<position>
+										<Point x="13317" y="4480"/>
+									</position>
+									<size>
+										<Size width="3140" height="2399"/>
+									</size>
+								</StateGE>
+								<TransitionGE presentable="!ed/4c13/605E/1518/68ac210a3e8e">
+									<positions>
+										<Point x="4727" y="8784"/>
+										<Point x="5539" y="10301"/>
+										<Point x="10813" y="10724"/>
+										<Point x="11624" y="12241"/>
+									</positions>
+									<labelSize>
+										<Size width="3016" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="5433" y="7673"/>
+									</labelPos>
+									<slashPos>
+										<Point x="7867" y="7673"/>
+									</slashPos>
+								</TransitionGE>
+								<TransitionGE presentable="!ed/4c2c/605E/1518/68ac21dc114a">
+									<positions>
+										<Point x="14764" y="12224"/>
+										<Point x="16281" y="12118"/>
+										<Point x="17939" y="10724"/>
+										<Point x="19491" y="10601"/>
+									</positions>
+									<labelSize>
+										<Size width="1129" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="16969" y="10213"/>
+									</labelPos>
+									<slashPos>
+										<Point x="17515" y="10213"/>
+									</slashPos>
+								</TransitionGE>
+								<TransitionGE presentable="!ed/4c3d/605E/1518/68ac220727ba">
+									<positions>
+										<Point x="21061" y="9472"/>
+										<Point x="19526" y="8184"/>
+										<Point x="17992" y="6897"/>
+										<Point x="16457" y="5609"/>
+									</positions>
+									<labelSize>
+										<Size width="3210" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="18221" y="5221"/>
+									</labelPos>
+									<slashPos>
+										<Point x="20849" y="5221"/>
+									</slashPos>
+								</TransitionGE>
+								<TransitionGE presentable="!ed/4c49/605E/1518/68ac22363e89">
+									<positions>
+										<Point x="13317" y="5556"/>
+										<Point x="9948" y="6244"/>
+										<Point x="6579" y="6932"/>
+										<Point x="3210" y="7655"/>
+									</positions>
+									<labelSize>
+										<Size width="1129" height="388"/>
+									</labelSize>
+									<labelPos>
+										<Point x="8925" y="5168"/>
+									</labelPos>
+									<slashPos>
+										<Point x="9472" y="5168"/>
+									</slashPos>
+								</TransitionGE>
+							</presentationElements>
+						</NetDiagram>
+					</diagrams>
+				</ed:Operator>
+			</pragmas>
+		</Operator>
+	</declarations>
+</File>

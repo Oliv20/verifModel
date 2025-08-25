@@ -1,0 +1,28 @@
+Notes-Types { Esterel-Technologies }  DEFINITIONS ::=
+BEGIN
+    Remark ::= SEQUENCE OF { SEQUENCE {
+    annot_object OID,
+    name STRING,
+        information {
+            Description TEXT
+            {
+            	 NT_FIELD_HEIGHT 20 ,
+            	 NT_FIELD_WIDTH 60 },
+            to_c BOOLEAN
+            {
+            	 NT_DEFAULT_VALUE T ,
+            	 NT_PRINTABLE F ,
+            	 NT_LEFT_LABEL "Propagate to generated code" }
+    } } }
+
+END
+
+Notes-Values { Esterel-Technologies }  DEFINITIONS ::=
+BEGIN
+    Remark ::= {
+        {"!ed/4bcf/605E/1518/68ac1fd2477d", "Remark_1","bridgeStatus := Retracted;" , T },
+        {"!ed/4bdc/605E/1518/68ac205a59a5", "Remark_1","bridgeStatus := Deploying;" , T },
+        {"!ed/4be4/605E/1518/68ac206749ee", "Remark_1","bridgeStatus := Deployed;" , T },
+        {"!ed/4bec/605E/1518/68ac207110fe", "Remark_1","bridgeStatus := Retracting;" , T }}
+END
+

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<File xmlns="http://www.esterel-technologies.com/ns/scade/6" xmlns:ed="http://www.esterel-technologies.com/ns/scade/pragmas/editor/7" xmlns:kcg="http://www.esterel-technologies.com/ns/scade/pragmas/codegen/3">
+	<declarations>
+		<Type external="imported" name="b">
+			<pragmas>
+				<ed:Type oid="!ed/49db/605E/1518/68ab247339c6"/>
+			</pragmas>
+		</Type>
+		<Type name="DoorStatus">
+			<definition>
+				<NamedType>
+					<type>
+						<NullRef/>
+					</type>
+				</NamedType>
+			</definition>
+			<pragmas>
+				<ed:Type oid="!ed/4a86/605E/1518/68ac11b0c39"/>
+				<kcg:Pragma>
+					doc &quot;Remark_1&quot; {Description = &quot;Closed Opening Open Closing&quot;}
+				</kcg:Pragma>
+			</pragmas>
+		</Type>
+		<Type name="BridgeStatus">
+			<definition>
+				<NamedType>
+					<type>
+						<NullRef/>
+					</type>
+				</NamedType>
+			</definition>
+			<pragmas>
+				<ed:Type oid="!ed/4b9d/605E/1518/68ac1da157e9"/>
+				<kcg:Pragma>
+					doc &quot;Remark_1&quot; {Description = &quot;Retracted   Deploying  Deployed   Retracting&quot;}
+				</kcg:Pragma>
+			</pragmas>
+		</Type>
+	</declarations>
+</File>
