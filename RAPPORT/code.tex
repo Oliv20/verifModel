@@ -1,0 +1,525 @@
+%==========================
+%  Rapport SCADE - Template
+%==========================
+\documentclass[11pt,a4paper]{report}
+
+%----- Encodage & français -----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} % OK sur Overleaf
+\usepackage[french]{babel}
+\usepackage{csquotes}
+
+%----- Mise en page -----
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+%----- Graphiques & tables -----
+\usepackage{graphicx}
+\graphicspath{{images/}} % <-- toutes les images dans images/
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+
+%----- Liens -----
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black,
+  pdfauthor={<Ton Nom>},
+  pdftitle={Rapport SCADE},
+  pdfsubject={Labo SCADE},
+  pdfkeywords={SCADE, Lustre, State Machines, Contrôleur, Sécurité}
+}
+
+%----- En-têtes/pieds -----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Rapport SCADE}
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+%----- Listings (code Lustre / pseudo) -----
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codegray}{RGB}{245,245,245}
+\lstdefinelanguage{Lustre}{
+  morekeywords={node,returns,var,let,tel,pre,and,or,not,if,then,else,->,type,enum},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]"
+}
+\lstset{
+  language=Lustre,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!60!black}\bfseries,
+  commentstyle=\color{gray!70},
+  stringstyle=\color{green!50!black},
+  showstringspaces=false,
+  frame=single,
+  rulecolor=\color{black!20},
+  backgroundcolor=\color{codegray},
+  tabsize=2,
+  breaklines=true
+}
+
+%==========================
+% Page de garde
+%==========================
+\begin{document}
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  % --- Logo université ---
+  % Place ton logo dans images/logo_universite.png ou change le nom ici :
+  \includegraphics[width=0.28\textwidth]{logo_universite.png}\par
+  \vspace{1.2cm}
+
+  %{\Large \textbf{Université <Nom de l'université>}}\\[0.4cm]
+  %{\Large Département <Nom du département>}\\[1.2cm]
+
+  {\huge \textbf{Rapport de Labo — ANSYS SCADE Suite}}\\[0.6cm]
+  {\Large Contrôleur portes/passerelle, Q1–Q7}\\[1.2cm]
+
+  \begin{tabular}{rl}
+    \textbf{Étudiant :} & Oliver Fundu \\
+    \textbf{Cours :} & Vérification de modèles (INFOM471) \\
+    \textbf{Encadrant :} & Schobbens P. \\
+    
+  \end{tabular}
+
+  \vfill
+  \vspace{0.8cm}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+%==========================
+% Introduction
+%==========================
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+Ce rapport présente la réalisation des \textbf{Questions 1 à 7} autour d’un contrôleur
+porte/passerelle dans \textit{ANSYS SCADE Suite}.\\[0.4em]
+ J’utilise la \textbf{version Student} de SCADE sur \textbf{macOS}.
+Certaines fonctionnalités  ne sont pas entièrement disponibles ou ne fonctionnent pas
+comme dans la version Campus/Industrie. \textbf{Pour pallier ces limites}, j’ai documenté
+des \textit{contournements} (variables locales initialisées jouant le rôle de constantes, notes
+dans les états pour affecter les sorties, etc.). L’objectif de ce rapport est d’expliquer
+\textbf{clairement la logique fonctionnelle} et les choix de modélisation malgré ces contraintes.
+
+
+
+\newpage
+
+%==========================
+% Q1
+%==========================
+\chapter{Question 1 — Opérateur \texttt{Button}}
+
+\section*{Objectif}
+Concevoir un opérateur \texttt{Button} qui mémorise l’appui d’un bouton :
+\begin{itemize}
+  \item lorsque \texttt{press} passe de \texttt{false} à \texttt{true}, la sortie \texttt{req} devient \texttt{true} ;
+  \item \texttt{req} reste ensuite \texttt{true} même après relâchement ;
+  \item aucune remise à zéro (\textit{reset}) n’est prévue dans cette version.
+\end{itemize}
+
+\section*{Méthode}
+La solution a été scindée en deux sous-parties :
+
+\subsection*{1) Détection de front montant}
+\begin{itemize}
+  \item Blocs utilisés : \texttt{previous} (\texttt{pre}), \texttt{Init} (initialisation à \texttt{false}) et \texttt{not}.
+  \item Rôle : détecter la transition \texttt{press : false → true}.
+  \item La sortie de cette chaîne est le signal \textbf{\texttt{rise}} (déclenchement au clic).
+\end{itemize}
+
+\subsection*{2) Mémorisation (latch)}
+\begin{itemize}
+  \item Variable locale : \texttt{latched}, destinée à conserver son état.
+  \item Principe logique (référence Lustre) :
+\begin{lstlisting}
+latched = (false -> pre(latched)) or rise;
+req     = latched;
+\end{lstlisting}
+  \item Réalisation schématique : second couple \texttt{previous + Init} suivi d’un \texttt{or}.
+  \item Contrainte version Étudiante : impossibilité pratique d’une unique variable locale en mode Write/Read.
+        \begin{itemize}
+          \item Contournement : utilisation d’une étiquette \texttt{latchedWrite} branchée à la sortie du \texttt{or}.
+          \item Conséquence : messages d’erreurs au \textit{check} (\texttt{variable non définie} / \texttt{unused flow}), sans impact sur l’intention fonctionnelle.
+        \end{itemize}
+\end{itemize}
+
+\section*{Résultat attendu (simulation)}
+\begin{itemize}
+  \item Démarrage (\texttt{press = false}) $\rightarrow$ \texttt{req = false}.
+  \item \texttt{press = true} sur un cycle $\rightarrow$ \texttt{req} devient \texttt{true}.
+  \item \texttt{press = false} ensuite $\rightarrow$ \texttt{req} reste \texttt{true} (comportement latch).
+\end{itemize}
+
+\section*{Limitation rencontrée}
+La version Étudiante de SCADE limite la définition/lecture d’une même variable locale (\texttt{latched}).  
+Le contournement via \texttt{latchedWrite} explique les avertissements/erreurs au \textit{check}, tout en respectant le comportement attendu.
+
+\section*{Conclusion}
+L’opérateur \texttt{Button} mémorise correctement un appui : détection sur front montant puis maintien via une boucle de rétroaction.  
+Malgré les restrictions de la version Étudiante (gestion des variables locales et constantes), la logique fonctionnelle est conforme et observable en simulation.
+
+
+%==========================
+% Q2
+%==========================
+\chapter{Question 2 — Machine à états de la porte}
+
+\section*{Objectif}
+Spécifier le comportement d’une porte au moyen d’une \textbf{machine à états} qui renseigne en sortie son statut \texttt{doorStatus}.  
+Les statuts possibles sont :
+\begin{itemize}
+  \item \texttt{Closed} (fermée),
+  \item \texttt{Opening} (en cours d’ouverture),
+  \item \texttt{Open} (ouverte),
+  \item \texttt{Closing} (en cours de fermeture).
+\end{itemize}
+
+\section*{Méthode}
+\begin{enumerate}
+  \item Création d’un type énuméré \texttt{DoorStatus} avec les quatre valeurs ci-dessus.
+  \item Création d’un \textit{Node Operator} \texttt{Door} avec :
+  \begin{itemize}
+    \item \textbf{Entrées} :
+      \begin{itemize}
+        \item \texttt{openDoor : bool} (commande d’ouverture),
+        \item \texttt{closeDoor : bool} (commande de fermeture).
+      \end{itemize}
+    \item \textbf{Sortie} :
+      \begin{itemize}
+        \item \texttt{doorStatus : DoorStatus}.
+      \end{itemize}
+  \end{itemize}
+  \item Conception d’une \textbf{machine à états} contenant les quatre états :
+  \texttt{Closed}, \texttt{Opening}, \texttt{Open}, \texttt{Closing}.
+  \begin{itemize}
+    \item L’état initial est \texttt{Closed}.
+    \item Transitions définies :
+      \begin{itemize}
+        \item \texttt{Closed} $\rightarrow$ \texttt{Opening} si \texttt{openDoor = true},
+        \item \texttt{Opening} $\rightarrow$ \texttt{Open} (transition immédiate dans la version simplifiée),
+        \item \texttt{Open} $\rightarrow$ \texttt{Closing} si \texttt{closeDoor = true},
+        \item \texttt{Closing} $\rightarrow$ \texttt{Closed} (transition immédiate dans la version simplifiée).
+      \end{itemize}
+  \end{itemize}
+  \item Dans la version Étudiante de SCADE, l’éditeur n’affiche pas directement l’onglet \textit{Actions/Activity}.
+  \begin{itemize}
+    \item Contournement : l’assignation de la sortie \texttt{doorStatus} a été placée dans une \textit{note} à l’intérieur de chaque état.
+    \item Exemple :
+      \begin{itemize}
+        \item \texttt{Closed} : \texttt{doorStatus := Closed;},
+        \item \texttt{Opening} : \texttt{doorStatus := Opening;},
+        \item \texttt{Open} : \texttt{doorStatus := Open;},
+        \item \texttt{Closing} : \texttt{doorStatus := Closing;}.
+      \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\section*{Résultat attendu (simulation)}
+\begin{itemize}
+  \item Au démarrage : \texttt{doorStatus = Closed}.
+  \item Si \texttt{openDoor = true} : la machine passe par \texttt{Opening}, puis \texttt{Open} (\texttt{doorStatus = Opening} puis \texttt{Open}).
+  \item Si \texttt{closeDoor = true} : la machine passe par \texttt{Closing}, puis \texttt{Closed} (\texttt{doorStatus = Closing} puis \texttt{Closed}).
+\end{itemize}
+
+\section*{Conclusion}
+La machine à états de la porte a été réalisée avec quatre états correspondant aux différents statuts possibles.  
+L’utilisation de \textit{notes} dans chaque état pour assigner la valeur de \texttt{doorStatus} permet de pallier les limites de la version Étudiante de SCADE, tout en obtenant le comportement attendu.
+
+%==========================
+% Q3
+%==========================
+\chapter{Question 3 — Machine à états de la passerelle}
+
+\section*{Objectif}
+Spécifier le comportement de la passerelle au moyen d’une \textbf{machine à états} donnant en sortie son statut \texttt{bridgeStatus}.  
+Les statuts possibles sont :
+\begin{itemize}
+  \item \texttt{Retracted},
+  \item \texttt{Deploying},
+  \item \texttt{Deployed},
+  \item \texttt{Retracting}.
+\end{itemize}
+
+\section*{Méthode}
+\begin{enumerate}
+  \item Définition du type énuméré \texttt{BridgeStatus}.
+  \item Création d’un \textit{Node Operator} \texttt{Bridge} avec :
+  \begin{itemize}
+    \item \textbf{Entrées} :
+      \begin{itemize}
+        \item \texttt{deployBridge : bool} (commande de déploiement),
+        \item \texttt{retractBridge : bool} (commande de rétraction).
+      \end{itemize}
+    \item \textbf{Sortie} :
+      \begin{itemize}
+        \item \texttt{bridgeStatus : BridgeStatus}.
+      \end{itemize}
+  \end{itemize}
+  \item Conception d’une \textbf{machine à états} avec 4 états :
+  \begin{itemize}
+    \item État initial : \texttt{Retracted}.
+    \item Transitions définies :
+      \begin{itemize}
+        \item \texttt{Retracted} $\rightarrow$ \texttt{Deploying} si \texttt{deployBridge = true},
+        \item \texttt{Deploying} $\rightarrow$ \texttt{Deployed} (transition immédiate dans la version simplifiée),
+        \item \texttt{Deployed} $\rightarrow$ \texttt{Retracting} si \texttt{retractBridge = true},
+        \item \texttt{Retracting} $\rightarrow$ \texttt{Retracted} (transition immédiate dans la version simplifiée).
+      \end{itemize}
+  \end{itemize}
+  \item Dans la version Étudiante de SCADE, l’éditeur n’affiche pas directement l’onglet \textit{Actions/Activity}.
+  \begin{itemize}
+    \item Contournement : l’assignation de la sortie \texttt{bridgeStatus} a été placée dans une \textit{note} à l’intérieur de chaque état.
+    \item Exemple :
+      \begin{itemize}
+        \item \texttt{Retracted} : \texttt{bridgeStatus := Retracted;},
+        \item \texttt{Deploying} : \texttt{bridgeStatus := Deploying;},
+        \item \texttt{Deployed} : \texttt{bridgeStatus := Deployed;},
+        \item \texttt{Retracting} : \texttt{bridgeStatus := Retracting;}.
+      \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\section*{Résultat attendu (simulation)}
+\begin{itemize}
+  \item Au démarrage : \texttt{bridgeStatus = Retracted}.
+  \item Si \texttt{deployBridge = true} $\rightarrow$ passage par \texttt{Deploying} puis \texttt{Deployed}.
+  \item Si \texttt{retractBridge = true} $\rightarrow$ passage par \texttt{Retracting} puis \texttt{Retracted}.
+\end{itemize}
+
+\section*{Conclusion}
+La machine à états de la passerelle a été réalisée de façon analogue à celle de la porte, avec des états adaptés.  
+L’utilisation de \textit{notes} pour assigner \texttt{bridgeStatus} dans chaque état permet d’obtenir un modèle fonctionnel malgré les limitations de la version Étudiante de SCADE.
+
+
+%==========================
+% Q4
+%==========================
+\chapter{Question 4 — Synchronisation porte et passerelle}
+
+\section*{Objectif}
+Assurer la synchronisation entre la porte et la passerelle afin de garantir la sécurité des passagers.
+
+\section*{Solutions mises en place dans le contrôleur}
+\begin{enumerate}
+  \item \textbf{Ouverture de porte conditionnée} : la porte ne peut s’ouvrir que si la passerelle est déjà déployée (\texttt{bridgeStatus = Deployed}).
+  \item \textbf{Blocage du mouvement de la passerelle} : la passerelle ne peut ni se déployer ni se rétracter lorsque la porte est \texttt{Open} ou \texttt{Opening}.
+  \item \textbf{Fermeture de porte} : elle peut se produire indépendamment de la passerelle, dès que l’ordre est donné.
+  \item \textbf{Rétraction de passerelle} : autorisée uniquement si la porte n’est pas ouverte.
+\end{enumerate}
+
+\section*{Rôle du contrôleur}
+Le contrôleur agit comme un filtre logique :
+\begin{itemize}
+  \item il reçoit les demandes brutes (\texttt{openDoorCmd}, \texttt{closeDoorCmd}, \texttt{deployBridgeCmd}, \texttt{retractBridgeCmd}) ainsi que les statuts (\texttt{doorStatus}, \texttt{bridgeStatus}),
+  \item il décide s’il est autorisé ou non de transmettre la commande aux automates de la porte et de la passerelle.
+\end{itemize}
+
+\section*{Conclusion}
+Le contrôleur garantit que la passerelle est toujours déployée avant l’ouverture de la porte et qu’elle reste immobile tant que la porte n’est pas refermée.  
+Cette logique de synchronisation assure la cohérence des commandes et la sécurité des passagers.
+
+
+%==========================
+% Q5
+%==========================
+\chapter{Question 5 — Commandes d’ouverture de porte et de déploiement de passerelle en station}
+
+\section*{Objectif}
+Spécifier l’envoi des commandes d’ouverture de la porte et de déploiement de la passerelle lorsque la rame est en station et qu’une demande a été effectuée par un passager (porte ou passerelle).  
+La commande doit être maintenue tant que l’action n’est pas réalisée (porte effectivement ouverte ou passerelle effectivement déployée).
+
+\section*{Méthode}
+\begin{enumerate}
+  \item \textbf{Entrées considérées} :
+  \begin{itemize}
+    \item \texttt{inStation : bool} (position de la rame),
+    \item \texttt{reqDoor : bool} (demande de porte),
+    \item \texttt{reqBridge : bool} (demande de passerelle),
+    \item \texttt{doorStatus : DoorStatus} (état courant de la porte),
+    \item \texttt{bridgeStatus : BridgeStatus} (état courant de la passerelle).
+  \end{itemize}
+
+  \item \textbf{Sorties générées} :
+  \begin{itemize}
+    \item \texttt{deployBridge : bool} (commande de déploiement),
+    \item \texttt{openDoor : bool} (commande d’ouverture),
+    \item \texttt{resetBridgeReq : bool} (réinitialisation de la demande passerelle),
+    \item \texttt{resetDoorReq : bool} (réinitialisation de la demande porte).
+  \end{itemize}
+
+  \item \textbf{Implémentation graphique dans un Node Operator} :
+  \begin{itemize}
+    \item Déploiement de passerelle :
+\begin{lstlisting}
+deployBridge = inStation
+            AND (reqDoor OR reqBridge)
+            AND NOT( (bridgeStatus = Deployed) OR (bridgeStatus = Deploying) )
+\end{lstlisting}
+
+    \item Ouverture de porte :
+\begin{lstlisting}
+openDoor = inStation
+        AND (reqDoor OR reqBridge)
+        AND (bridgeStatus = Deployed)
+        AND NOT( (doorStatus = Open) OR (doorStatus = Opening) )
+\end{lstlisting}
+
+    \item Resets :
+\begin{lstlisting}
+resetBridgeReq = (bridgeStatus = Deployed);
+resetDoorReq   = (doorStatus = Open);
+\end{lstlisting}
+
+    \item Pour réaliser les comparaisons, des \textbf{variables locales initialisées} à des valeurs énumérées
+    (\texttt{vDeployed}, \texttt{vDeploying}, \texttt{vOpen}, \texttt{vOpening}) ont été utilisées comme
+    contournement, la version Étudiante ne permettant pas de créer directement des constantes d’énumération.
+  \end{itemize}
+\end{enumerate}
+
+\section*{Résultat attendu (simulation)}
+\begin{itemize}
+  \item \textbf{Déploiement} : quand la rame est en station et qu’un passager demande porte ou passerelle, la passerelle commence à se déployer. La commande \texttt{deployBridge} reste active jusqu’à ce que \texttt{bridgeStatus = Deployed}.
+  \item \textbf{Ouverture} : dès que la passerelle est déployée, la commande \texttt{openDoor} devient active. Elle reste active tant que \texttt{doorStatus} n’est pas \texttt{Open}.
+  \item \textbf{Resets} : une fois la passerelle déployée (\texttt{bridgeStatus = Deployed}), la demande associée est réinitialisée ; de même pour la porte lorsqu’elle est ouverte (\texttt{doorStatus = Open}).
+\end{itemize}
+
+\section*{Conclusion}
+Le contrôleur en station garantit une séquence correcte :
+\begin{enumerate}
+  \item Déploiement de la passerelle,
+  \item puis ouverture de la porte.
+\end{enumerate}
+Les commandes sont maintenues jusqu’à exécution complète et les demandes passagers sont réinitialisées automatiquement.
+
+
+%==========================
+% Q6
+%==========================
+\chapter{Question 6 — Fermeture de porte et rétraction de passerelle lors du départ immédiat}
+
+\section*{Objectif}
+Spécifier l’envoi des commandes de fermeture de la porte et de rétraction de la passerelle lorsqu’un départ immédiat est déclenché, afin d’assurer la sécurité avant le mouvement de la rame.
+
+\section*{Méthode}
+\begin{enumerate}
+  \item \textbf{Entrées considérées} :
+  \begin{itemize}
+    \item \texttt{immDeparture : bool} (signal indiquant le départ immédiat),
+    \item \texttt{doorStatus : DoorStatus} (état de la porte),
+    \item \texttt{bridgeStatus : BridgeStatus} (état de la passerelle).
+  \end{itemize}
+
+  \item \textbf{Sorties générées} :
+  \begin{itemize}
+    \item \texttt{closeDoor : bool} (commande de fermeture),
+    \item \texttt{retractBridge : bool} (commande de rétraction).
+  \end{itemize}
+
+  \item \textbf{Logique de décision} :
+  \begin{itemize}
+    \item \textbf{Fermeture de porte} :
+\begin{lstlisting}
+closeDoor = immDeparture AND NOT(doorStatus = Closed)
+\end{lstlisting}
+    La commande est envoyée tant que la porte n’est pas encore fermée.
+
+    \item \textbf{Rétraction de passerelle} :
+\begin{lstlisting}
+retractBridge = immDeparture AND NOT(bridgeStatus = Retracted)
+\end{lstlisting}
+    La commande est envoyée tant que la passerelle n’est pas encore rétractée.
+  \end{itemize}
+
+  \item Pour réaliser ces comparaisons, des \textbf{variables locales initialisées} à des valeurs énumérées
+  (\texttt{vClosed}, \texttt{vRetracted}) sont utilisées, comme pour les questions précédentes,
+  en remplacement de constantes (indisponibles dans la version Étudiante).
+\end{enumerate}
+
+\section*{Résultat attendu (simulation)}
+\begin{itemize}
+  \item Si \texttt{immDeparture = true} :
+  \begin{itemize}
+    \item et que la porte est ouverte (\texttt{Open} ou \texttt{Opening}), la commande \texttt{closeDoor} est activée jusqu’à ce que \texttt{doorStatus = Closed}.
+    \item et que la passerelle est déployée (\texttt{Deployed} ou \texttt{Deploying}), la commande \texttt{retractBridge} est activée jusqu’à ce que \texttt{bridgeStatus = Retracted}.
+  \end{itemize}
+  \item Une fois les deux équipements sécurisés, les commandes retombent automatiquement à \texttt{false}.
+\end{itemize}
+
+\section*{Conclusion}
+Le contrôleur en cas de départ immédiat garantit la fermeture de la porte et la rétraction de la passerelle si nécessaire.  
+Les commandes sont maintenues jusqu’à exécution complète, ce qui assure une séquence sécurisée avant la mise en mouvement de la rame.
+
+
+%==========================
+% Q7
+%==========================
+\chapter{Question 7 — Autorisation de départ}
+
+\section*{Objectif}
+Spécifier le signal d’\textbf{autorisation de départ} du contrôleur, en fonction de l’état de la porte et de la passerelle.  
+Trois cas sont à considérer :
+\begin{enumerate}
+  \item La porte est déjà fermée et la passerelle rétractée $\rightarrow$ le tramway peut redémarrer.
+  \item La porte est ouverte ou en cours d’ouverture $\rightarrow$ attendre sa fermeture avant le départ.
+  \item La passerelle est déployée ou en cours de déploiement $\rightarrow$ attendre sa rétraction et la fermeture de la porte.
+\end{enumerate}
+
+\section*{Méthode}
+\begin{enumerate}
+  \item \textbf{Entrées considérées} :
+  \begin{itemize}
+    \item \texttt{doorStatus : DoorStatus},
+    \item \texttt{bridgeStatus : BridgeStatus}.
+  \end{itemize}
+
+  \item \textbf{Sortie générée} :
+  \begin{itemize}
+    \item \texttt{departAuth : bool}.
+  \end{itemize}
+
+  \item \textbf{Implémentation graphique dans un Node Operator} :
+  \begin{itemize}
+    \item Comparateur \texttt{doorStatus = Closed} $\rightarrow$ booléen,
+    \item Comparateur \texttt{bridgeStatus = Retracted} $\rightarrow$ booléen,
+    \item \texttt{and} des deux résultats $\rightarrow$ \texttt{departAuth}.
+  \end{itemize}
+
+  \item Formule :
+\begin{lstlisting}
+departAuth = (doorStatus = Closed) AND (bridgeStatus = Retracted)
+\end{lstlisting}
+\end{enumerate}
+
+\section*{Résultat attendu (simulation)}
+\begin{itemize}
+  \item Si la porte est \texttt{Closed} et la passerelle \texttt{Retracted} $\rightarrow$ \texttt{departAuth = true} $\rightarrow$ départ autorisé.
+  \item Si la porte est \texttt{Open} ou \texttt{Opening} $\rightarrow$ \texttt{departAuth = false} jusqu’à fermeture.
+  \item Si la passerelle est \texttt{Deployed} ou \texttt{Deploying} $\rightarrow$ \texttt{departAuth = false} jusqu’à rétraction complète (et fermeture de la porte).
+\end{itemize}
+
+\section*{Conclusion}
+L’autorisation de départ repose sur une condition de sécurité simple : \textbf{porte fermée ET passerelle rétractée}.  
+Cette logique couvre les trois cas de l’énoncé et s’intègre au contrôleur conçu aux étapes précédentes.
+
+
+%==========================
+% Annexes
+%==========================
+
+
+\end{document}
